@@ -6,11 +6,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors);
+
+
+app.use(cors({origin:["https://restupos-2.web.app","http://localhost:5174"]}));
 app.use(express.json());
 
 // MongoDB connection string and client configuration
-const uri = 'mongodb+srv://RestuPOS:aaGDbua0OXgIoO4S@cluster0.6tweslj.mongodb.net/?retryWrites=true&w=majority';
+const uri =
+  'mongodb+srv://RestuPOS:aaGDbua0OXgIoO4S@cluster0.6tweslj.mongodb.net/?retryWrites=true&w=majority';
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -29,46 +32,58 @@ async function run() {
     const addFoodCollection = client.db('RestuPOS').collection('addFood');
     const addOrderCollection = client.db('RestuPOS').collection('Order');
 
+
+
+    
+
     // POST endpoint to add new food
-    app.post('/addFood', async (req, res) => {
+    app.post('/addFood', async(req,res)=>{
       const add = req.body;
       const result = await addFoodCollection.insertOne(add);
-      res.send(result);
-    });
+      res.send(result)
+    })
 
-    // GET endpoint to retrieve all food
-    app.get('/addFood', async (req, res) => {
+    
+    app.get('/addFood', async(req,res)=>{
       const result = await addFoodCollection.find().toArray();
-      res.send(result);
-    });
-
-    // POST endpoint to add a new order
-    app.post('/Order', async (req, res) => {
+      res.send(result)
+    })
+  
+        //Order post
+    
+     app.post('/Order', async (req, res ) =>{
       const newOrder = req.body;
       const result = await addOrderCollection.insertOne(newOrder);
       res.send(result);
-    });
 
-    // GET endpoint to retrieve all orders
-    app.get('/Order', async (req, res) => {
-      const cursor = addOrderCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-  } catch (error) {
+   })
+
+   //Order Get
+   app.get('/Order', async(req,res) =>{
+     const coursor = addOrderCollection.find();
+     const result = await coursor.toArray();
+     res.send(result)
+   }) 
+
+     
+
+    // Confirm connection with a ping
+    // await client.db('admin').command({ ping: 1 });
+    // console.log('Pinged your deployment. Successfully connected to MongoDB!');
+  }
+   catch (error) {
     console.error('Error in MongoDB connection:', error);
   }
+  
 }
 
-// Start the MongoDB connection
+// Start the server and run the MongoDB connection
 run().catch(console.dir);
 
-// Default route
 app.get('/', (req, res) => {
   res.send('RestuPOS server is running');
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`RestuPOS server is running on port: ${port}`);
-});
+});  
